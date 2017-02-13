@@ -16,25 +16,27 @@ fn time_request(url: &String) -> f64 {
 
     let request = client.get(url);
 
-    let start = time::precise_time_s();
+    let start_time = time::precise_time_s();
     let wrapped_response = request.send();
-    let end = time::precise_time_s();
+    let end_time = time::precise_time_s();
 
     let response = wrapped_response.unwrap();
 
     info!("HTTP {}", response.status);
-    info!("Duration: {} seconds", end - start);
+    info!("Duration: {} seconds", end_time - start_time);
 
-    return end - start;
+    return end_time - start_time;
 }
 
 fn benchmark(url: String, requests: usize) {
+    let mut last_update = time::precise_time_s();
     let mut total_duration = 0.0;
 
     for x in 0..requests {
         total_duration = total_duration + time_request(&url);
 
-        if (x + 1) % 100 == 0 {
+        if time::precise_time_s() - last_update > 5.0 {
+            last_update = time::precise_time_s();
             println!("Completed {} requests...", x + 1);
         }
     }
