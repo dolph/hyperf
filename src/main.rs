@@ -3,6 +3,7 @@ extern crate env_logger;
 
 extern crate argparse;
 extern crate hyper;
+extern crate time;
 
 struct Options {
     verbose: bool,
@@ -12,9 +13,12 @@ struct Options {
 fn benchmark(url: String) {
     let client = hyper::Client::new();
 
+    let start = time::precise_time_s();
     let res = client.get(&url).send().unwrap();
+    let end = time::precise_time_s();
 
     println!("HTTP {}", res.status);
+    println!("Duration {}", end - start);
 }
 
 fn main() {
