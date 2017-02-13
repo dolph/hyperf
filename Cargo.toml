@@ -1,11 +1,11 @@
 [package]
-name = "skeleton"
+name = "hyperf"
 version = "0.0.1"
 authors = [ "Dolph Mathews <dolph.mathews@gmail.com>" ]
-description = "Skeleton for Rust-based projects."
+description = "A modern command line tool for measuring HTTP performance."
 license = "Apache-2.0/MIT"
-repository = "https://github.com/dolph/rust-skeleton"
-documentation = "https://github.com/dolph/rust-skeleton"
+repository = "https://github.com/dolph/hyperf"
+documentation = "https://github.com/dolph/hyperf"
 
 [dependencies]
 argparse = "*"
