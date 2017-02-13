@@ -20,7 +20,7 @@ cargo test --verbose
 # Smoke test the result.
 export RUST_LOG=debug
 cargo run
-./target/debug/skeleton
-./target/debug/skeleton --help
-./target/debug/skeleton --version
-./target/debug/skeleton --verbose
+./target/debug/hyperf
+./target/debug/hyperf --help
+./target/debug/hyperf --version
+./target/debug/hyperf --verbose
