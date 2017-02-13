@@ -22,7 +22,10 @@ fn benchmark(url: String) {
     let response = wrapped_response.unwrap();
 
     println!("HTTP {}", response.status);
-    println!("Duration {}", end - start);
+    info!("Duration: {} seconds", end - start);
+
+    let formatted_duration = format!("{:.*}", 3, 1000.0 * (end - start));
+    println!("Duration: {} milliseconds", formatted_duration);
 }
 
 fn main() {
