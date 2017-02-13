@@ -1,3 +1,5 @@
+use std::thread;
+
 #[macro_use] extern crate log;
 extern crate env_logger;
 
@@ -12,20 +14,25 @@ struct Options {
 }
 
 fn time_request(url: &String) -> f64 {
-    let client = hyper::Client::new();
+    let url_clone = url.clone();
+    let child = thread::spawn(move || {
+        let client = hyper::Client::new();
 
-    let request = client.get(url);
+        let request = client.get(&url_clone);
 
-    let start_time = time::precise_time_s();
-    let wrapped_response = request.send();
-    let end_time = time::precise_time_s();
+        let start_time = time::precise_time_s();
+        let wrapped_response = request.send();
+        let end_time = time::precise_time_s();
 
-    let response = wrapped_response.unwrap();
+        let response = wrapped_response.unwrap();
 
-    info!("HTTP {}", response.status);
-    info!("Duration: {} seconds", end_time - start_time);
+        info!("HTTP {}", response.status);
+        info!("Duration: {} seconds", end_time - start_time);
 
-    return end_time - start_time;
+        return end_time - start_time;
+    });
+
+    return child.join().unwrap();
 }
 
 fn benchmark(url: String, requests: usize) {
