@@ -19,8 +19,8 @@ cargo test --verbose
 
 # Smoke test the result.
 export RUST_LOG=debug
-cargo run
-./target/debug/hyperf
+cargo run http://example.com/
+./target/debug/hyperf http://example.com/
 ./target/debug/hyperf --help
 ./target/debug/hyperf --version
-./target/debug/hyperf --verbose
+./target/debug/hyperf --verbose http://example.com/
