@@ -1,4 +1,5 @@
 use std::thread;
+use std::process;
 
 #[macro_use] extern crate log;
 extern crate env_logger;
@@ -11,51 +12,59 @@ struct Options {
     verbose: bool,
     url: String,
     requests: usize,
+    concurrency: usize,
 }
 
-fn time_request(url: &String) -> f64 {
+struct Statistics {
+    requests: usize,
+    total_duration: f64,
+}
+
+fn time_request(url: &String, requests: &usize) -> Statistics {
     let url_clone = url.clone();
+    let requests_clone = requests.clone();
     let child = thread::spawn(move || {
         let client = hyper::Client::new();
 
-        let request = client.get(&url_clone);
+        let mut stats = Statistics {
+            requests: requests_clone,
+            total_duration: 0.0,
+        };
 
-        let start_time = time::precise_time_s();
-        let wrapped_response = request.send();
-        let end_time = time::precise_time_s();
+        for _ in 0..requests_clone {
+            let request = client.get(&url_clone);
 
-        let response = wrapped_response.unwrap();
+            let start_time = time::precise_time_s();
+            let wrapped_response = request.send();
+            let end_time = time::precise_time_s();
 
-        info!("HTTP {}", response.status);
-        info!("Duration: {} seconds", end_time - start_time);
+            let response = wrapped_response.unwrap();
+            stats.total_duration += end_time - start_time;
+        }
 
-        return end_time - start_time;
+        return stats;
     });
 
     return child.join().unwrap();
 }
 
-fn benchmark(url: String, requests: usize) {
-    let mut last_update = time::precise_time_s();
-    let mut total_duration = 0.0;
+fn benchmark(options: Options) {
+    let mut stats = Statistics {
+        requests: 0,
+        total_duration: 0.0,
+    };
 
-    for x in 0..requests {
-        total_duration = total_duration + time_request(&url);
-
-        if time::precise_time_s() - last_update > 5.0 {
-            last_update = time::precise_time_s();
-            println!("Completed {} requests...", x + 1);
-        }
+    let requests_per_child = options.requests / options.concurrency;
+    for _ in 0..options.concurrency {
+        let results = time_request(&options.url, &requests_per_child);
+        stats.requests += results.requests;
+        stats.total_duration += results.total_duration;
     }
 
-    if requests >= 100 {
-        println!("");
-    }
+    println!("Completed requests: {}", stats.requests);
 
-    println!("Completed requests: {}", requests);
-
-    let requests_float = requests as f64;
-    let mean = total_duration / requests_float;
+    let requests_float = stats.requests as f64;
+    let mean = stats.total_duration / requests_float;
 
     let formatted_mean = format!("{:.*}", 3, 1000.0 * mean);
     println!("Mean response time: {} milliseconds", formatted_mean);
@@ -73,6 +82,7 @@ fn main() {
         verbose: false,
         url: "".to_string(),
         requests: 1,
+        concurrency: 1,
     };
 
     // Parse command line arguments.
@@ -89,6 +99,9 @@ fn main() {
         parser.refer(&mut options.verbose)
             .add_option(&["-v", "--verbose"], argparse::StoreTrue,
             "Enable verbose output.");
+        parser.refer(&mut options.concurrency)
+            .add_option(&["-c", "--concurrency"], argparse::Store,
+            "Number of requests to perform in parallel (concurrent users).");
         parser.refer(&mut options.requests)
             .add_option(&["-n", "--requests"], argparse::Store,
             "Number of requests to perform.");
@@ -102,7 +115,12 @@ fn main() {
 
     println!("GET {}", options.url);
 
-    benchmark(options.url, options.requests);
+    if options.requests % options.concurrency != 0 {
+        println!("The number of requests to perform must be evenly divisible by the concurrency.");
+        process::exit(1);
+    }
+
+    benchmark(options);
 }
 
 #[cfg(test)]
