@@ -18,6 +18,7 @@ struct Options {
 struct Statistics {
     requests: usize,
     total_duration: f64,
+    errors: usize,
 }
 
 fn spawn_benchmark_thread(url: &String, requests: &usize) -> thread::JoinHandle<Statistics> {
@@ -29,16 +30,23 @@ fn spawn_benchmark_thread(url: &String, requests: &usize) -> thread::JoinHandle<
         let mut stats = Statistics {
             requests: requests_clone,
             total_duration: 0.0,
+            errors: 0,
         };
 
         for _ in 0..requests_clone {
             let request = client.get(&url_clone);
 
             let start_time = time::precise_time_s();
-            let wrapped_response = request.send();
+            let wrapped_response = match request.send() {
+                Ok(response) => response,
+                Err(e) => {
+                    stats.errors += 1;
+                    continue;
+                }
+            };
             let end_time = time::precise_time_s();
 
-            let response = wrapped_response.unwrap();
+            stats.requests += 1;
             stats.total_duration += end_time - start_time;
         }
 
@@ -60,6 +68,7 @@ fn benchmark(options: Options) {
     let mut stats = Statistics {
         requests: 0,
         total_duration: 0.0,
+        errors: 0,
     };
     while let Some(child) = children.pop() {
         let results = child.join().unwrap();
@@ -68,6 +77,8 @@ fn benchmark(options: Options) {
     }
 
     println!("Completed requests: {}", stats.requests);
+    println!("Errored requests: {}", stats.errors);
+    println!("Concurrency: {}", options.concurrency);
 
     let requests_float = stats.requests as f64;
     let mean = stats.total_duration / requests_float;
