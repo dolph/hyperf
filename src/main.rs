@@ -80,7 +80,7 @@ fn benchmark(options: Options) {
 }
 
 fn print_report(options: Options, stats: Statistics) {
-    println!("Completed requests: {}", stats.requests);
+    println!("Successful requests: {}", stats.requests);
     println!("Errored requests: {}", stats.errors);
     println!("Concurrency: {}", options.concurrency);
 
