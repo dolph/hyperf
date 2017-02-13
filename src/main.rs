@@ -37,9 +37,9 @@ fn spawn_benchmark_thread(url: &String, requests: &usize) -> thread::JoinHandle<
             let request = client.get(&url_clone);
 
             let start_time = time::precise_time_s();
-            let wrapped_response = match request.send() {
+            match request.send() {
                 Ok(response) => response,
-                Err(e) => {
+                Err(_) => {
                     stats.errors += 1;
                     continue;
                 }
