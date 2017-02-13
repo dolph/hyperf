@@ -76,6 +76,10 @@ fn benchmark(options: Options) {
         stats.total_duration += results.total_duration;
     }
 
+    print_report(options, stats);
+}
+
+fn print_report(options: Options, stats: Statistics) {
     println!("Completed requests: {}", stats.requests);
     println!("Errored requests: {}", stats.errors);
     println!("Concurrency: {}", options.concurrency);
