@@ -2,9 +2,19 @@
 extern crate env_logger;
 
 extern crate argparse;
+extern crate hyper;
 
 struct Options {
     verbose: bool,
+    url: String,
+}
+
+fn benchmark(url: String) {
+    let client = hyper::Client::new();
+
+    let res = client.get(&url).send().unwrap();
+
+    println!("HTTP {}", res.status);
 }
 
 fn main() {
@@ -14,6 +24,7 @@ fn main() {
     // Initialize options.
     let mut options = Options {
         verbose: false,
+        url: "".to_string(),
     };
 
     // Parse command line arguments.
@@ -30,10 +41,17 @@ fn main() {
         parser.refer(&mut options.verbose)
             .add_option(&["-v", "--verbose"], argparse::StoreTrue,
             "Enable verbose output.");
+        parser.refer(&mut options.url)
+            .add_argument("url", argparse::Store, "URL to request.");
         parser.parse_args_or_exit();
     }
 
-    info!("Hello, world.");
+    debug!("verbose={}", options.verbose);
+    debug!("url={}", options.url);
+
+    println!("GET {}", options.url);
+
+    benchmark(options.url);
 }
 
 #[cfg(test)]

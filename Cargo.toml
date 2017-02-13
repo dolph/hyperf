@@ -10,4 +10,5 @@ documentation = "https://github.com/dolph/hyperf"
 [dependencies]
 argparse = "*"
 env_logger = "*"
+hyper = "*"
 log = "*"
