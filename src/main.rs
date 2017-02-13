@@ -131,6 +131,8 @@ fn main() {
     }
 
     debug!("verbose={}", options.verbose);
+    debug!("concurrency={}", options.concurrency);
+    debug!("requests={}", options.requests);
     debug!("url={}", options.url);
 
     println!("GET {}", options.url);
