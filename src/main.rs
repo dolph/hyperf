@@ -13,11 +13,15 @@ struct Options {
 fn benchmark(url: String) {
     let client = hyper::Client::new();
 
+    let request = client.get(&url);
+
     let start = time::precise_time_s();
-    let res = client.get(&url).send().unwrap();
+    let wrapped_response = request.send();
     let end = time::precise_time_s();
 
-    println!("HTTP {}", res.status);
+    let response = wrapped_response.unwrap();
+
+    println!("HTTP {}", response.status);
     println!("Duration {}", end - start);
 }
 
