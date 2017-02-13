@@ -28,7 +28,7 @@ fn spawn_benchmark_thread(url: &String, requests: &usize) -> thread::JoinHandle<
         let client = hyper::Client::new();
 
         let mut stats = Statistics {
-            requests: requests_clone,
+            requests: 0,
             total_duration: 0.0,
             errors: 0,
         };
