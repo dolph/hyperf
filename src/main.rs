@@ -8,12 +8,13 @@ extern crate time;
 struct Options {
     verbose: bool,
     url: String,
+    requests: u64,
 }
 
-fn benchmark(url: String) {
+fn time_request(url: &String) -> f64 {
     let client = hyper::Client::new();
 
-    let request = client.get(&url);
+    let request = client.get(url);
 
     let start = time::precise_time_s();
     let wrapped_response = request.send();
@@ -22,10 +23,19 @@ fn benchmark(url: String) {
     let response = wrapped_response.unwrap();
 
     println!("HTTP {}", response.status);
-    info!("Duration: {} seconds", end - start);
 
-    let formatted_duration = format!("{:.*}", 3, 1000.0 * (end - start));
-    println!("Duration: {} milliseconds", formatted_duration);
+    return end - start;
+}
+
+fn benchmark(url: String, requests: u64) {
+    for x in 0..requests {
+        let duration = time_request(&url);
+
+        info!("Duration: {} seconds", duration);
+
+        let formatted_duration = format!("{:.*}", 3, 1000.0 * duration);
+        println!("Duration: {} milliseconds", formatted_duration);
+    }
 }
 
 fn main() {
@@ -36,6 +46,7 @@ fn main() {
     let mut options = Options {
         verbose: false,
         url: "".to_string(),
+        requests: 1,
     };
 
     // Parse command line arguments.
@@ -52,6 +63,9 @@ fn main() {
         parser.refer(&mut options.verbose)
             .add_option(&["-v", "--verbose"], argparse::StoreTrue,
             "Enable verbose output.");
+        parser.refer(&mut options.requests)
+            .add_option(&["-n", "--requests"], argparse::Store,
+            "Number of requests to perform.");
         parser.refer(&mut options.url)
             .add_argument("url", argparse::Store, "URL to request.");
         parser.parse_args_or_exit();
@@ -62,7 +76,7 @@ fn main() {
 
     println!("GET {}", options.url);
 
-    benchmark(options.url);
+    benchmark(options.url, options.requests);
 }
 
 #[cfg(test)]
