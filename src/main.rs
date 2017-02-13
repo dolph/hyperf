@@ -39,6 +39,10 @@ fn benchmark(url: String, requests: usize) {
         }
     }
 
+    if requests >= 100 {
+        println!("");
+    }
+
     println!("Completed requests: {}", requests);
 
     let requests_float = requests as f64;
