@@ -27,3 +27,4 @@ cargo run http://example.com/
 ./target/debug/hyperf --requests 10 http://example.com/
 ./target/debug/hyperf -n 10 http://example.com/
 ./target/debug/hyperf -n 10 --concurrency 10 http://example.com/
+./target/debug/hyperf -n 10 -c 10 http://example.com/
