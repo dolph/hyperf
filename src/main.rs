@@ -75,7 +75,7 @@ fn benchmark(options: Options) {
     let formatted_mean = format!("{:.*}", 3, 1000.0 * mean);
     println!("Mean response time: {} milliseconds", formatted_mean);
 
-    let formatted_rps = format!("{:.*}", 3, 1.0 / mean);
+    let formatted_rps = format!("{:.*}", 3, (options.concurrency as f64) / mean);
     println!("Requests per second: {}", formatted_rps);
 }
 
