@@ -8,7 +8,7 @@ extern crate time;
 struct Options {
     verbose: bool,
     url: String,
-    requests: u64,
+    requests: usize,
 }
 
 fn time_request(url: &String) -> f64 {
@@ -22,20 +22,33 @@ fn time_request(url: &String) -> f64 {
 
     let response = wrapped_response.unwrap();
 
-    println!("HTTP {}", response.status);
+    info!("HTTP {}", response.status);
+    info!("Duration: {} seconds", end - start);
 
     return end - start;
 }
 
-fn benchmark(url: String, requests: u64) {
+fn benchmark(url: String, requests: usize) {
+    let mut total_duration = 0.0;
+
     for x in 0..requests {
-        let duration = time_request(&url);
+        total_duration = total_duration + time_request(&url);
 
-        info!("Duration: {} seconds", duration);
-
-        let formatted_duration = format!("{:.*}", 3, 1000.0 * duration);
-        println!("Duration: {} milliseconds", formatted_duration);
+        if (x + 1) % 100 == 0 {
+            println!("Completed {} requests...", x + 1);
+        }
     }
+
+    println!("Completed requests: {}", requests);
+
+    let requests_float = requests as f64;
+    let mean = total_duration / requests_float;
+
+    let formatted_mean = format!("{:.*}", 3, 1000.0 * mean);
+    println!("Mean response time: {} milliseconds", formatted_mean);
+
+    let formatted_rps = format!("{:.*}", 3, 1.0 / mean);
+    println!("Requests per second: {}", formatted_rps);
 }
 
 fn main() {
