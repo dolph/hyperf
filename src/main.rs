@@ -20,7 +20,7 @@ struct Statistics {
     total_duration: f64,
 }
 
-fn time_request(url: &String, requests: &usize) -> Statistics {
+fn spawn_benchmark_thread(url: &String, requests: &usize) -> thread::JoinHandle<Statistics> {
     let url_clone = url.clone();
     let requests_clone = requests.clone();
     let child = thread::spawn(move || {
@@ -45,18 +45,24 @@ fn time_request(url: &String, requests: &usize) -> Statistics {
         return stats;
     });
 
-    return child.join().unwrap();
+    return child;
 }
 
 fn benchmark(options: Options) {
+    // Spawn child threads.
+    let mut children = Vec::new();
+    let requests_per_child = options.requests / options.concurrency;
+    for _ in 0..options.concurrency {
+        children.push(spawn_benchmark_thread(&options.url, &requests_per_child));
+    }
+
+    // Aggregate results from child threads.
     let mut stats = Statistics {
         requests: 0,
         total_duration: 0.0,
     };
-
-    let requests_per_child = options.requests / options.concurrency;
-    for _ in 0..options.concurrency {
-        let results = time_request(&options.url, &requests_per_child);
+    while let Some(child) = children.pop() {
+        let results = child.join().unwrap();
         stats.requests += results.requests;
         stats.total_duration += results.total_duration;
     }
