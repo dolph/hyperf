@@ -84,8 +84,7 @@ fn print_report(options: Options, stats: Statistics) {
     println!("Errored requests: {}", stats.errors);
     println!("Concurrency: {}", options.concurrency);
 
-    let requests_float = stats.requests as f64;
-    let mean = stats.total_duration / requests_float;
+    let mean = stats.total_duration / (stats.requests as f64);
 
     let formatted_mean = format!("{:.*}", 3, 1000.0 * mean);
     println!("Mean response time: {} milliseconds", formatted_mean);
