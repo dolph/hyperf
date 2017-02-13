@@ -1,4 +1,4 @@
-rust-skeleton
-=============
+hyperf
+======
 
-A skeleton for Rust-based projects.
+A modern command line tool for measuring HTTP performance.
