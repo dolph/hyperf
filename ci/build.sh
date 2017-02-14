@@ -8,13 +8,8 @@ cd $DIR/..
 rustc --version
 cargo --version
 
-# Install nightly rust just so we can use unstable clippy.
-rustup install nightly
-rustup run nightly rustc --version
-
-# Install and run clippy from nightly/unstable.
-rustup run nightly cargo install clippy
-rustup run nightly cargo clippy
+# Run clippy from nightly/unstable.
+rustup run nightly cargo clippy -- -D warnings
 
 # Build and deny warnings.
 cargo rustc -- -D warnings
