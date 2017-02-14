@@ -24,7 +24,8 @@ struct Statistics {
 fn spawn_benchmark_thread(url: &String, requests: &usize) -> thread::JoinHandle<Statistics> {
     let url_clone = url.clone();
     let requests_clone = requests.clone();
-    let child = thread::spawn(move || {
+
+    thread::spawn(move || {
         let client = hyper::Client::new();
 
         let mut stats = Statistics {
@@ -52,8 +53,6 @@ fn spawn_benchmark_thread(url: &String, requests: &usize) -> thread::JoinHandle<
 
         return stats;
     });
-
-    return child;
 }
 
 fn benchmark(options: Options) {
