@@ -11,7 +11,7 @@ cargo --version
 # Build for release.
 cargo build --release --verbose
 
-mkdir release
-echo hyperf v`./target/release/hyperf --version` > release/name
-echo `./target/release/hyperf --version` > release/tag
-cp target/release/hyperf release/artifact
+mkdir $DIR/../../release
+echo hyperf v`./target/release/hyperf --version` > $DIR/../../release/name
+echo `./target/release/hyperf --version` > $DIR/../../release/tag
+cp target/release/hyperf $DIR/../../release/artifact
