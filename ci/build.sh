@@ -14,6 +14,9 @@ cargo --version
 # cargo install clippy
 # cargo clippy
 
+# Build and deny warnings.
+cargo rustc -- -D warnings
+
 # Test the project.
 cargo test --verbose
 
