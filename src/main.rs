@@ -10,6 +10,7 @@ extern crate time;
 
 struct Options {
     verbose: bool,
+    method: String,
     url: String,
     requests: usize,
     concurrency: usize,
@@ -101,7 +102,8 @@ fn main() {
     // Initialize options.
     let mut options = Options {
         verbose: false,
-        url: "".to_string(),
+        method: "GET".to_string(),
+        url: "http://localhost/".to_string(),
         requests: 1,
         concurrency: 1,
     };
@@ -117,25 +119,45 @@ fn main() {
                     env!("CARGO_PKG_VERSION"))),
             "Show version information.");
         parser.refer(&mut options.verbose)
-            .add_option(&["-v", "--verbose"], argparse::StoreTrue,
-            "Enable verbose output.");
+            .add_option(
+                &["-v", "--verbose"],
+                argparse::StoreTrue,
+                "Enable verbose output.");
         parser.refer(&mut options.concurrency)
-            .add_option(&["-c", "--concurrency"], argparse::Store,
-            "Number of requests to perform in parallel (concurrent users).");
+            .add_option(
+                &["-c", "--concurrency"],
+                argparse::Store,
+                "Number of requests to perform in parallel (concurrent users).");
         parser.refer(&mut options.requests)
-            .add_option(&["-n", "--requests"], argparse::Store,
-            "Number of requests to perform.");
+            .add_option(
+                &["-n", "--requests"],
+                argparse::Store,
+                "Number of requests to perform.");
+        parser.refer(&mut options.method)
+            .add_argument(
+                "method",
+                argparse::Store,
+                "HTTP method to use when requesting URL.")
+            .required();
         parser.refer(&mut options.url)
-            .add_argument("url", argparse::Store, "URL to request.");
+            .add_argument(
+                "url",
+                argparse::Store,
+                "URL to request.")
+            .required();
         parser.parse_args_or_exit();
     }
+
+    // Normalize input.
+    options.method = options.method.to_uppercase();
 
     debug!("verbose={}", options.verbose);
     debug!("concurrency={}", options.concurrency);
     debug!("requests={}", options.requests);
+    debug!("method={}", options.method);
     debug!("url={}", options.url);
 
-    println!("GET {}", options.url);
+    println!("{} {}", options.method, options.url);
 
     if options.requests % options.concurrency != 0 {
         println!("The number of requests to perform must be evenly divisible by the concurrency.");
