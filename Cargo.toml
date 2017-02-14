@@ -1,6 +1,6 @@
 [package]
 name = "hyperf"
-version = "0.0.1"
+version = "1.0.0"
 authors = [ "Dolph Mathews <dolph.mathews@gmail.com>" ]
 description = "A modern command line tool for measuring HTTP performance."
 license = "Apache-2.0/MIT"
