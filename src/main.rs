@@ -50,8 +50,6 @@ fn spawn_benchmark_thread(url: &String, requests: &usize) -> thread::JoinHandle<
             stats.requests += 1;
             stats.total_duration += end_time - start_time;
         }
-
-        return stats;
     });
 }
 
