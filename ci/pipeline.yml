@@ -9,6 +9,12 @@ resources:
   source:
     uri: https://github.com/dolph/hyperf.git
     branch: master
+- name: release
+  type: github-release
+  source:
+    user: dolph
+    repository: hyperf
+    access_token: {{ github_access_token }}
 
 jobs:
 - name: build
@@ -53,3 +59,9 @@ jobs:
       - name: repo
       run:
         path: repo/ci/release.sh
+  - put: release
+    params:
+      name: release/name
+      tag: release/tag
+      globs:
+      - release/artifact
