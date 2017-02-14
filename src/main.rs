@@ -113,8 +113,7 @@ fn main() {
         parser.add_option(&["--version"],
             argparse::Print(
                 format!(
-                    "{} {}",
-                    env!("CARGO_PKG_NAME"),
+                    "{}",
                     env!("CARGO_PKG_VERSION"))),
             "Show version information.");
         parser.refer(&mut options.verbose)
