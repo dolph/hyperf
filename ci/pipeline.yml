@@ -1,68 +1,70 @@
 ---
 resources:
-- name: image
-  type: docker-image
+- name: "image"
+  type: "docker-image"
   source:
-    repository: dolphm/ubuntu-latest-rust-nightly
-- name: repo
-  type: git
+    repository: "dolphm/ubuntu-latest-rust-nightly"
+- name: "repo"
+  type: "git"
   source:
-    uri: https://github.com/dolph/hyperf.git
-    branch: master
-- name: gh-release
-  type: github-release
+    uri: "https://github.com/dolph/hyperf.git"
+    branch: "master"
+- name: "gh-release"
+  type: "github-release"
   source:
-    user: dolph
-    repository: hyperf
+    user: "dolph"
+    repository: "hyperf"
     access_token: "{{ github_access_token }}"
 
 jobs:
-- name: build
+- name: "build"
   serial: false
   build_logs_to_retain: 5
   plan:
-  - get: image
+  - get: "image"
     trigger: true
-  - get: repo
+  - get: "repo"
     trigger: true
-  - task: build
+  - task: "build"
     attempts: 3
     config:
-      platform: linux
+      platform: "linux"
       image_resource:
-        type: docker-image
+        type: "docker-image"
         source:
-          repository: dolphm/ubuntu-latest-rust-nightly
+          repository: "dolphm/ubuntu-latest-rust-nightly"
       inputs:
-      - name: repo
+      - name: "repo"
       run:
-        path: repo/ci/build.sh
-- name: release
+        path: "repo/ci/build.sh"
+- name: "release"
   serial: true
   build_logs_to_retain: 5
   plan:
-  - get: image
+  - get: "image"
     trigger: true
-    passed: [build]
-  - get: repo
+    passed:
+    - "build"
+  - get: "repo"
     trigger: true
-    passed: [build]
-  - get: gh-release
-  - task: release
+    passed:
+    - "build"
+  - get: "gh-release"
+  - task: "release"
     attempts: 3
     config:
-      platform: linux
+      platform: "linux"
       image_resource:
-        type: docker-image
+        type: "docker-image"
         source:
-          repository: dolphm/ubuntu-latest-rust-nightly
+          repository: "dolphm/ubuntu-latest-rust-nightly"
       inputs:
-      - name: repo
+      - name: "repo"
       run:
-        path: repo/ci/release.sh
-  - put: gh-release
+        path: "repo/ci/release.sh"
+  - put: "gh-release"
     params:
-      name: release/name
-      tag: release/tag
+      name: "release/name"
+      tag: "release/tag"
       globs:
-      - release/artifact
+      - "release/artifact"
