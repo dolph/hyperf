@@ -9,7 +9,7 @@ resources:
   source:
     uri: https://github.com/dolph/hyperf.git
     branch: master
-- name: release
+- name: gh-release
   type: github-release
   source:
     user: dolph
@@ -47,6 +47,7 @@ jobs:
   - get: repo
     trigger: true
     passed: [build]
+  - get: gh-release
   - task: release
     attempts: 3
     config:
@@ -59,7 +60,7 @@ jobs:
       - name: repo
       run:
         path: repo/ci/release.sh
-  - put: release
+  - put: gh-release
     params:
       name: release/name
       tag: release/tag
