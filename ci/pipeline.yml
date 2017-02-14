@@ -14,7 +14,7 @@ resources:
   source:
     user: "dolph"
     repository: "hyperf"
-    access_token: "{{ github_access_token }}"
+    access_token: {{github_access_token}}
 
 jobs:
 - name: "build"
