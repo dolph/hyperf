@@ -25,7 +25,7 @@ fn spawn_benchmark_thread(url: &String, requests: &usize) -> thread::JoinHandle<
     let url_clone = url.clone();
     let requests_clone = requests.clone();
 
-    thread::spawn(move || {
+    let child = thread::spawn(move || {
         let client = hyper::Client::new();
 
         let mut stats = Statistics {
@@ -50,7 +50,11 @@ fn spawn_benchmark_thread(url: &String, requests: &usize) -> thread::JoinHandle<
             stats.requests += 1;
             stats.total_duration += end_time - start_time;
         }
+
+        return stats;
     });
+
+    return child;
 }
 
 fn benchmark(options: Options) {
