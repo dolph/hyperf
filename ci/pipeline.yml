@@ -51,7 +51,7 @@ jobs:
     - "build"
   - get: "gh-release"
   - task: "release"
-    attempts: 3
+    attempts: 10
     config:
       platform: "linux"
       image_resource:
