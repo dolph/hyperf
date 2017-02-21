@@ -9,7 +9,8 @@ rustc --version
 cargo --version
 
 # Run clippy from nightly/unstable.
-rustup run nightly cargo clippy
+# FIXME: clippy does not build reliably.
+# rustup run nightly cargo clippy
 
 # Build and deny warnings.
 cargo rustc -- -D warnings
