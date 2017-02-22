@@ -10,6 +10,7 @@ extern crate time;
 
 use std::str::FromStr;
 
+#[derive(Clone)]
 struct Options {
     verbose: bool,
     method: String,
@@ -24,9 +25,8 @@ struct Statistics {
     errors: usize,
 }
 
-fn spawn_benchmark_thread(method: &String, url: &String, requests: &usize) -> thread::JoinHandle<Statistics> {
-    let method_clone = method.clone();
-    let url_clone = url.clone();
+fn spawn_benchmark_thread(options: &Options, requests: &usize) -> thread::JoinHandle<Statistics> {
+    let options_clone = options.clone();
     let requests_clone = requests.clone();
 
     let child = thread::spawn(move || {
@@ -41,7 +41,7 @@ fn spawn_benchmark_thread(method: &String, url: &String, requests: &usize) -> th
         };
 
         for _ in 0..requests_clone {
-            let method = match hyper::method::Method::from_str(&method_clone) {
+            let method = match hyper::method::Method::from_str(&options_clone.method) {
                 Ok(method) => method,
                 Err(_) => {
                     println!("Unsupported HTTP method.");
@@ -49,7 +49,7 @@ fn spawn_benchmark_thread(method: &String, url: &String, requests: &usize) -> th
                 },
             };
 
-            let request = client.request(method, &url_clone);
+            let request = client.request(method, &options_clone.url);
 
             // https://hyper.rs/hyper/v0.10.0/hyper/client/struct.RequestBuilder.html
             // request.body(&body_clone);
@@ -80,7 +80,7 @@ fn benchmark(options: Options) {
     let mut children = Vec::new();
     let requests_per_child = options.requests / options.concurrency;
     for _ in 0..options.concurrency {
-        children.push(spawn_benchmark_thread(&options.method, &options.url, &requests_per_child));
+        children.push(spawn_benchmark_thread(&options, &requests_per_child));
     }
 
     // Aggregate results from child threads.
