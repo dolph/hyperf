@@ -20,7 +20,7 @@ cargo test --verbose
 
 # Smoke test the result.
 export RUST_LOG=debug
-cargo run http://example.com/
+cargo run get http://example.com/
 ./target/debug/hyperf --help
 ./target/debug/hyperf --version
 ./target/debug/hyperf get http://example.com/
