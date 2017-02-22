@@ -181,11 +181,6 @@ fn main() {
         process::exit(1);
     }
 
-    if options.method != "GET" {
-        println!("Unsupported HTTP method.");
-        process::exit(1);
-    }
-
     benchmark(options);
 }
 
