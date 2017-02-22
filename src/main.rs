@@ -8,6 +8,8 @@ extern crate argparse;
 extern crate hyper;
 extern crate time;
 
+use std::str::FromStr;
+
 struct Options {
     verbose: bool,
     method: String,
@@ -22,12 +24,15 @@ struct Statistics {
     errors: usize,
 }
 
-fn spawn_benchmark_thread(url: &String, requests: &usize) -> thread::JoinHandle<Statistics> {
+fn spawn_benchmark_thread(method: &String, url: &String, requests: &usize) -> thread::JoinHandle<Statistics> {
+    let method_clone = method.clone();
     let url_clone = url.clone();
     let requests_clone = requests.clone();
 
     let child = thread::spawn(move || {
         let client = hyper::Client::new();
+        // client.set_read_timeout();
+        // client.set_write_timeout();
 
         let mut stats = Statistics {
             requests: 0,
@@ -36,7 +41,19 @@ fn spawn_benchmark_thread(url: &String, requests: &usize) -> thread::JoinHandle<
         };
 
         for _ in 0..requests_clone {
-            let request = client.get(&url_clone);
+            let method = match hyper::method::Method::from_str(&method_clone) {
+                Ok(method) => method,
+                Err(_) => {
+                    println!("Unsupported HTTP method.");
+                    process::exit(1);
+                },
+            };
+
+            let request = client.request(method, &url_clone);
+
+            // https://hyper.rs/hyper/v0.10.0/hyper/client/struct.RequestBuilder.html
+            // request.body(&body_clone);
+            // request.header(header);
 
             let start_time = time::precise_time_s();
             match request.send() {
@@ -63,7 +80,7 @@ fn benchmark(options: Options) {
     let mut children = Vec::new();
     let requests_per_child = options.requests / options.concurrency;
     for _ in 0..options.concurrency {
-        children.push(spawn_benchmark_thread(&options.url, &requests_per_child));
+        children.push(spawn_benchmark_thread(&options.method, &options.url, &requests_per_child));
     }
 
     // Aggregate results from child threads.
@@ -161,6 +178,11 @@ fn main() {
 
     if options.requests % options.concurrency != 0 {
         println!("The number of requests to perform must be evenly divisible by the concurrency.");
+        process::exit(1);
+    }
+
+    if options.method != "GET" {
+        println!("Unsupported HTTP method.");
         process::exit(1);
     }
 
