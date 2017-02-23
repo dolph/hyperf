@@ -15,6 +15,7 @@ struct Options {
     verbose: bool,
     method: String,
     url: String,
+    body: String,
     requests: usize,
     concurrency: usize,
 }
@@ -49,10 +50,8 @@ fn spawn_benchmark_thread(options: &Options, requests: &usize) -> thread::JoinHa
                 },
             };
 
-            let request = client.request(method, &options_clone.url);
-
             // https://hyper.rs/hyper/v0.10.0/hyper/client/struct.RequestBuilder.html
-            // request.body(&body_clone);
+            let request = client.request(method, &options_clone.url).body(&options_clone.body);
             // request.header(header);
 
             let start_time = time::precise_time_s();
@@ -121,6 +120,7 @@ fn main() {
         verbose: false,
         method: "GET".to_string(),
         url: "http://localhost/".to_string(),
+        body: "".to_string(),
         requests: 1,
         concurrency: 1,
     };
@@ -162,6 +162,11 @@ fn main() {
                 argparse::Store,
                 "URL to request.")
             .required();
+        parser.refer(&mut options.body)
+            .add_argument(
+                "body",
+                argparse::Store,
+                "Body of the HTTP request, if applicable.");
         parser.parse_args_or_exit();
     }
 

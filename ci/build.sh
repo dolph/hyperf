@@ -29,3 +29,4 @@ cargo run get http://example.com/
 ./target/debug/hyperf -n 10 get http://example.com/
 ./target/debug/hyperf -n 10 --concurrency 10 get http://example.com/
 ./target/debug/hyperf -n 10 -c 10 get http://example.com/
+./target/debug/hyperf post http://example.com/ "asdf"
